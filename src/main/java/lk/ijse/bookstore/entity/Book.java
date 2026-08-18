@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "books")
@@ -38,5 +39,8 @@ public class Book {
     private String language;
 
     private Integer pages;
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
 }
