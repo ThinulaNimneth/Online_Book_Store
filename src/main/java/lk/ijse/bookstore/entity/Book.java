@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "books")
 @Data
@@ -25,5 +27,16 @@ public class Book {
 
     @Column(length = 500)
     private String description;
+
+    @Column(nullable = false,precision = 10 , scale = 2)
+    private BigDecimal price;
+
+    @Column(precision = 10 ,scale = 2)
+    private BigDecimal specialPrice;
+
+    @Column(length = 50)
+    private String language;
+
+    private Integer pages;
 
 }
