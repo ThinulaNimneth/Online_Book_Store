@@ -1,7 +1,6 @@
 package lk.ijse.bookstore.entity;
 
 import jakarta.persistence.*;
-import lk.ijse.bookstore.enumiration.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,22 +10,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "publishers")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role {
+public class Publisher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roleId;
+    private Long publisherId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true, length = 20)
-    private RoleType roleName;
+    @Column(nullable = false, length = 120)
+    private String name;
 
-    @ManyToMany(mappedBy = "roles")
+    @Column(length = 120)
+    private String contactEmail;
+
+    @OneToMany(mappedBy = "publisher")
     @Builder.Default
-    private Set<User> users  =  new HashSet<>();
+    private Set<Book> books = new HashSet<>();
 }
