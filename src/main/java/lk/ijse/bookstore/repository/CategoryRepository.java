@@ -1,13 +1,12 @@
 package lk.ijse.bookstore.repository;
 
-import lk.ijse.bookstore.entity.User;
+import lk.ijse.bookstore.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmail(String email);
-    boolean existsByEmail(String email);
+public interface CategoryRepository extends JpaRepository<Category, Long>{
+    Optional<Category> findByNameIgnoreCase(String name);
 }
