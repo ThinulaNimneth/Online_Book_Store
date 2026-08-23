@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherResponseDTO {
-    private Long publisherId;
-    private String name;
-    private String contactEmail;
+public class InventoryResponseDTO {
+    private Long inventoryId;
+    private Long bookId;
+    private String bookTitle;
+    private Integer quantityAvailable;
+    private Integer reorderLevel;
 }

@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherResponseDTO {
-    private Long publisherId;
-    private String name;
-    private String contactEmail;
+public class WishlistResponseDTO {
+    private Long wishlistId;
+    private List<BookResponseDTO> items;
+
 }

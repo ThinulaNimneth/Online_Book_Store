@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherResponseDTO {
-    private Long publisherId;
+public class ReviewResponseDTO {
+    private Long reviewId;
     private String name;
-    private String contactEmail;
+    private Integer rating;
+    private String comment;
+    private LocalDateTime createdAt;
 }

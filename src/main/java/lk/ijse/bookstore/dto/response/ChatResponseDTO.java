@@ -1,5 +1,6 @@
 package lk.ijse.bookstore.dto.response;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherResponseDTO {
-    private Long publisherId;
-    private String name;
-    private String contactEmail;
+public class ChatResponseDTO {
+    private String reply;
 }
