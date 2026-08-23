@@ -31,6 +31,8 @@ public class Inventory {
     @JoinColumn(name = "book_id", nullable = false, unique = true)
     private Book book;
 
+    @PreUpdate
+    @PrePersist
     protected  void onChange() {
         updatedAt = LocalDateTime.now();
     }
