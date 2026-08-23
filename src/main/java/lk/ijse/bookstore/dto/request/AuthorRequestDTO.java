@@ -1,0 +1,4 @@
+package lk.ijse.bookstore.dto.request;
+
+public class AuthorRequestDTO {
+}
