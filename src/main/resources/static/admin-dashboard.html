@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard &mdash; Potha</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a href="#" class="active" data-panel="overview">Overview</a>
+    <a href="#" data-panel="books">Books</a>
+    <a href="#" data-panel="categories">Categories</a>
+    <a href="#" data-panel="authors">Authors</a>
+    <a href="#" data-panel="publishers">Publishers</a>
+    <a href="#" data-panel="inventory">Inventory</a>
+    <a href="#" data-panel="orders">Orders</a>
+  </aside>
+
+  <main class="admin-main">
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card"><div class="stat-value" id="stat-books">&ndash;</div><div class="stat-label">Total Books</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-orders">&ndash;</div><div class="stat-label">Orders This Month</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-revenue">&ndash;</div><div class="stat-label">Revenue This Month</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-low-stock">&ndash;</div><div class="stat-label">Low Stock Items</div></div>
+    </div>
+
+    <div class="section-header">
+      <h2 id="panel-title">Books</h2>
+      <button class="btn btn-primary btn-sm" id="add-new-btn">+ Add Book</button>
+    </div>
+
+    <table class="data-table" id="admin-table">
+      <thead>
+      <tr id="admin-table-head">
+        <th>Title</th><th>Author</th><th>Category</th><th>Price</th><th>Stock</th><th></th>
+      </tr>
+      </thead>
+      <tbody id="admin-table-body"></tbody>
+    </table>
+  </main>
+</div>
+
+<div class="admin-modal-backdrop" id="admin-modal-backdrop">
+  <div class="admin-modal">
+    <h3 id="admin-modal-title">Add Book</h3>
+    <div class="admin-modal-error" id="admin-modal-error"></div>
+    <form id="admin-modal-form"></form>
+    <div class="admin-modal-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="admin-modal-cancel">Cancel</button>
+      <button type="submit" form="admin-modal-form" class="btn btn-primary btn-sm" id="admin-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/admin-dashboard.js"></script>
+</body>
+</html>

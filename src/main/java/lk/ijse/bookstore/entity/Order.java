@@ -5,6 +5,8 @@ import lk.ijse.bookstore.enumiration.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -15,6 +17,8 @@ import java.util.Set;
 @Entity
 @Table(name = "orders")
 @Data
+@EqualsAndHashCode(of = "orderId")
+@ToString(of = "orderId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -49,6 +53,7 @@ public class Order {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 
+    @PrePersist
     protected void onCreate(){
         orderDate = LocalDateTime.now();
     }

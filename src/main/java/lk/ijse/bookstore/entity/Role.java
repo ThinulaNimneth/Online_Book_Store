@@ -5,6 +5,8 @@ import lk.ijse.bookstore.enumiration.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -13,6 +15,8 @@ import java.util.Set;
 @Entity
 @Table(name = "roles")
 @Data
+@EqualsAndHashCode(of = "roleId")
+@ToString(of = "roleId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

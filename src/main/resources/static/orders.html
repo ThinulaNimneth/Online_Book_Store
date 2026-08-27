@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders &mdash; Potha</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="container" style="padding-top:32px;padding-bottom:60px;max-width:820px">
+  <div class="section-header"><h2>My Orders</h2></div>
+
+  <div id="orders-list"></div>
+
+  <div class="empty-state" id="orders-empty" style="display:none">
+    <h3>No orders yet</h3>
+    <p>Once you place an order, you'll be able to track it here.</p>
+    <a href="index.html" class="btn btn-primary btn-sm">Browse Books</a>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/orders.js"></script>
+</body>
+</html>

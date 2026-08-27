@@ -4,11 +4,15 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "book_images")
 @Data
+@EqualsAndHashCode(of = "imageId")
+@ToString(of = "imageId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

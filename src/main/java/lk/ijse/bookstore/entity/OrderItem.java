@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -11,6 +13,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "order_items")
 @Data
+@EqualsAndHashCode(of = "orderItemId")
+@ToString(of = "orderItemId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -6,6 +6,8 @@ import lk.ijse.bookstore.enumiration.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "payments")
 @Data
+@EqualsAndHashCode(of = "paymentId")
+@ToString(of = "paymentId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

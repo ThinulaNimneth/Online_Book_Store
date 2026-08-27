@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -12,6 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name = "authors")
 @Data
+@EqualsAndHashCode(of = "authorId")
+@ToString(of = "authorId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

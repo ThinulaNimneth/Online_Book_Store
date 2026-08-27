@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Potha &mdash; Sri Lanka's Online Book Store</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">Est. for readers everywhere in Sri Lanka</span>
+    <h1>Every story starts with <em>the right book.</em></h1>
+    <p>Browse thousands of titles across fiction, education, and Sinhala literature &mdash; with real stock status, special pricing, and reviews from other readers.</p>
+    <div style="display:flex;gap:12px">
+      <a href="#new-arrivals" class="btn btn-primary">Browse New Arrivals</a>
+      <a href="#categories" class="btn btn-outline">Explore Categories</a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <section class="section" id="new-arrivals">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Just landed</span>
+        <h2>New Arrivals</h2>
+      </div>
+      <a href="#categories">View all &rarr;</a>
+    </div>
+    <div class="carousel-row" id="new-arrivals-row"></div>
+    <div class="carousel-controls" id="new-arrivals-dots"></div>
+  </section>
+
+  <section class="section" id="bestsellers">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Last 7 days</span>
+        <h2>Bestseller (Last 7 Days)</h2>
+      </div>
+      <a href="#categories">View all &rarr;</a>
+    </div>
+    <div class="carousel-row" id="bestsellers-7d-row"></div>
+    <div class="carousel-controls" id="bestsellers-7d-dots"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">All-time favourites</span>
+        <h2>Bestseller (All Time)</h2>
+      </div>
+      <a href="#categories">View all &rarr;</a>
+    </div>
+    <div class="carousel-row" id="bestsellers-all-row"></div>
+    <div class="carousel-controls" id="bestsellers-all-dots"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Right now</span>
+        <h2>Trending</h2>
+      </div>
+    </div>
+    <div class="book-grid" id="trending-grid"></div>
+  </section>
+
+  <section class="section" id="categories">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow" id="catalog-eyebrow">Full catalog</span>
+        <h2 id="catalog-heading">All Books</h2>
+      </div>
+    </div>
+    <div class="book-grid" id="catalog-grid"></div>
+    <div class="empty-state" id="catalog-empty" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <h3>No books found</h3>
+      <p>Try a different search term or browse another category.</p>
+      <a href="index.html" class="btn btn-outline btn-sm">Clear filters</a>
+    </div>
+  </section>
+
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/catalog.js"></script>
+</body>
+</html>
