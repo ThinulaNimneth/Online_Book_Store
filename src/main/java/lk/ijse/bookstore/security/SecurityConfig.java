@@ -36,17 +36,23 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+
+
+                .anonymous(anon -> anon.authorities("ROLE_GUEST"))
+
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/", "/*.html", "/css/**", "/js/**", "/partials/**").permitAll()
 
-                        // Public
+
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/books/**", "/api/v1/categories/**", "/api/v1/authors/**",
-                                "/api/v1/publishers/**", "/api/v1/reviews/**").permitAll()
+                                "/api/v1/publishers/**", "/api/v1/reviews/**").hasAnyRole("GUEST", "USER", "ADMIN")
 
+                        //see AuthController
+                        .requestMatchers(HttpMethod.GET, "/api/v1/auth/whoami").hasAnyRole("GUEST", "USER", "ADMIN")
 
                         //admin dash
                         .requestMatchers(HttpMethod.POST, "/api/v1/books/**", "/api/v1/categories/**",
@@ -58,6 +64,7 @@ public class SecurityConfig {
                                 "/api/v1/authors/**", "/api/v1/publishers/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
+                        //  "add to cart".
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

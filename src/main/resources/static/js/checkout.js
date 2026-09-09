@@ -29,16 +29,31 @@ function loadAddresses() {
                 $select.append(`<option value="${addr.addressId}">${escapeHtml(addr.line1)}, ${escapeHtml(addr.city)}</option>`);
             });
         })
-        .fail(() => {}); // no saved addresses yet / backend not ready - use the "new address" fields
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+
+
+
+        });
 }
 
 function loadCartSummary() {
     api.get("/carts")
         .done(res => renderSummary((res.body && res.body.items) || []))
-        .fail(() => renderSummary([
-            { title: "The Silence of the Sea", quantity: 1, unitPrice: 1190 },
-            { title: "Little Star's Big Journey", quantity: 2, unitPrice: 430 },
-        ]));
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            showToast("Couldn't load your cart - is the backend running?");
+            renderSummary([]);
+            $("#place-order-btn").prop("disabled", true);
+        });
 }
 
 function renderSummary(items) {
@@ -55,8 +70,18 @@ function renderSummary(items) {
 }
 
 function placeOrder() {
+    if (!checkoutCart.length) {
+        showToast("Your cart is empty");
+        return;
+    }
+
     const addressId = $("#address-select").val();
     const paymentMethod = $('input[name="paymentMethod"]:checked').val();
+
+    if (!paymentMethod) {
+        showToast("Choose a payment method");
+        return;
+    }
 
     const payload = addressId
         ? { addressId: addressId, paymentMethod: paymentMethod }
@@ -82,14 +107,24 @@ function placeOrder() {
             const orderId = res.body && res.body.orderId;
             showToast("Order placed! Confirmation sent.");
             localStorage.setItem("potha_cart_count", "0");
+            localStorage.setItem("potha_cart_total", "0");
             window.location.href = "orders.html" + (orderId ? "?highlight=" + orderId : "");
         })
-        .fail(function () {
-            showToast("Order placed (demo mode - backend not connected yet)");
-            localStorage.setItem("potha_cart_count", "0");
-            setTimeout(() => window.location.href = "orders.html", 900);
-        })
-        .always(() => $btn.prop("disabled", false).text("Place Order"));
+        .fail(function (xhr) {
+
+
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) || "Couldn't place your order - please try again";
+            showToast(msg);
+            $btn.prop("disabled", false).text("Place Order");
+        });
+
+
 }
 
 function escapeHtml(str) {

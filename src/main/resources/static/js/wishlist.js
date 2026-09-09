@@ -6,18 +6,21 @@
      POST   /carts/items            -> move to cart
    ========================================================================== */
 
-const DEMO_WISHLIST = [
-    { wishlistItemId: 1, id: 3, title: "Whispers of the Highlands", author: "N. Ranasinghe", category: "Poetry", price: 890, specialPrice: 690, rating: 4, reviewCount: 14, inStock: true, isNew: true },
-    { wishlistItemId: 2, id: 9, title: "The Last Tea Estate", author: "M. Wickramasinghe", category: "Fiction", price: 1550, specialPrice: 1350, rating: 5, reviewCount: 48, inStock: true, isNew: false },
-];
-
 $(document).ready(function () {
     initLayout();
     if (!Auth.requireLogin()) return;
 
     api.get("/wishlists")
         .done(res => renderWishlist((res.body && res.body.items) || []))
-        .fail(() => renderWishlist(DEMO_WISHLIST));
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            showToast("Couldn't load your wishlist - is the backend running?");
+            renderWishlist([]);
+        });
 });
 
 function renderWishlist(items) {
@@ -57,20 +60,42 @@ function renderWishlist(items) {
 
 function bindWishlistEvents() {
     $(".move-to-cart-btn").off("click").on("click", function () {
+        const $btn = $(this).prop("disabled", true);
         const wishlistItemId = $(this).closest(".book-card").data("wishlist-item-id");
         api.post("/carts/items", { wishlistItemId: wishlistItemId })
-            .done(() => showToast("Moved to cart"))
-            .fail(() => showToast("Moved to cart (demo mode)"));
-        bumpLocalCount("potha_cart_count", 1);
+            .done(() => { showToast("Moved to cart"); bumpLocalCount("potha_cart_count", 1); })
+            .fail(xhr => {
+                $btn.prop("disabled", false);
+                if (xhr.status === 401 || xhr.status === 403) {
+                    showToast("Your session has expired - please sign in again");
+                    Auth.logout();
+                    return;
+                }
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) || "Couldn't move to cart - please try again";
+                showToast(msg);
+            });
     });
 
     $(".remove-wishlist-btn").off("click").on("click", function () {
         const $card = $(this).closest(".book-card");
         const wishlistItemId = $card.data("wishlist-item-id");
-        $card.remove();
-        bumpLocalCount("potha_wishlist_count", -1);
-        $("#wishlist-empty").toggle($("#wishlist-grid").children().length === 0);
-        api.del("/wishlists/items/" + wishlistItemId).fail(() => {});
+
+        api.del("/wishlists/items/" + wishlistItemId)
+            .done(() => {
+                $card.remove();
+                bumpLocalCount("potha_wishlist_count", -1);
+                $("#wishlist-empty").toggle($("#wishlist-grid").children().length === 0);
+            })
+            .fail(xhr => {
+                if (xhr.status === 401 || xhr.status === 403) {
+                    showToast("Your session has expired - please sign in again");
+                    Auth.logout();
+                    return;
+                }
+                // Removal failed server-side
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) || "Couldn't remove item - please try again";
+                showToast(msg);
+            });
     });
 }
 

@@ -1,5 +1,6 @@
 package lk.ijse.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lk.ijse.bookstore.dto.request.CartItemRequestDTO;
 import lk.ijse.bookstore.dto.response.CommonResponse;
 import lk.ijse.bookstore.exception.ResponseCode;
@@ -28,14 +29,14 @@ public class CartController {
 
 
     @PostMapping(value = "/items", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CommonResponse addItem(Authentication authentication, @RequestBody CartItemRequestDTO dto){
+    public CommonResponse addItem(Authentication authentication, @Valid @RequestBody CartItemRequestDTO dto){
         return new CommonResponse(ResponseCode.SUCCESS,cartService.addItem(authentication.getName(), dto), ResponseMessage.SUCCESS);
     }
 
 
     @PutMapping(value = "/items/{cartItemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CommonResponse updateItem(Authentication authentication, @PathVariable Long cartItemId,
-                                     @RequestBody CartItemRequestDTO dto) {
+                                     @Valid @RequestBody CartItemRequestDTO dto) {
         return new CommonResponse(ResponseCode.SUCCESS,
                 cartItemService.updateQuantity(authentication.getName(), cartItemId, dto.getQuantity()), ResponseMessage.SUCCESS);
     }

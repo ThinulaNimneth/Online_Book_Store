@@ -8,22 +8,26 @@
 
 const SHIPPING_FLAT = 350;
 
-const DEMO_CART = [
-    { cartItemId: 1, bookId: 1, title: "The Silence of the Sea", author: "K. Jayatilaka", unitPrice: 1190, quantity: 1 },
-    { cartItemId: 2, bookId: 5, title: "Little Star's Big Journey", author: "A. Perera", unitPrice: 430, quantity: 2 },
-];
-
 let cartItems = [];
 
 $(document).ready(function () {
     initLayout();
+    if (!Auth.requireLogin()) return;
     loadCart();
 });
 
 function loadCart() {
     api.get("/carts")
         .done(res => renderCart((res.body && res.body.items) || []))
-        .fail(() => renderCart(DEMO_CART));
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            showToast("Couldn't load your cart - is the backend running?");
+            renderCart([]);
+        });
 }
 
 function renderCart(items) {
@@ -69,25 +73,56 @@ function changeQty($btn, delta) {
     const item = cartItems.find(i => i.cartItemId === cartItemId);
     if (!item) return;
 
-    item.quantity = Math.max(1, item.quantity + delta);
+    const previousQty = item.quantity;
+    const newQty = Math.max(1, previousQty + delta);
+
+    // Optimistic UI update
+    item.quantity = newQty;
     $row.find(".qty-value").text(item.quantity);
     $row.find(".cart-item-price").text(formatLKR(item.unitPrice * item.quantity));
     updateSummary();
 
-    api.put("/carts/items/" + cartItemId, { quantity: item.quantity })
-        .fail(() => {}); // demo mode - local state already updated
+    api.put("/carts/items/" + cartItemId, { quantity: newQty })
+        .fail(xhr => {
+            item.quantity = previousQty;
+            $row.find(".qty-value").text(previousQty);
+            $row.find(".cart-item-price").text(formatLKR(item.unitPrice * previousQty));
+            updateSummary();
+
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) || "Couldn't update quantity";
+            showToast(msg);
+        });
 }
 
 function removeItem($el) {
     const $row = $el.closest(".cart-item");
     const cartItemId = $row.data("cart-item-id");
+    const removedItem = cartItems.find(i => i.cartItemId === cartItemId);
+    const removedIndex = cartItems.indexOf(removedItem);
 
     cartItems = cartItems.filter(i => i.cartItemId !== cartItemId);
     $row.remove();
     updateSummary();
     $("#cart-empty").toggle(cartItems.length === 0);
 
-    api.del("/carts/items/" + cartItemId).fail(() => {});
+    api.del("/carts/items/" + cartItemId)
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            // Removal failed server-side - restore the row instead of pretending it worked.
+            if (removedItem) cartItems.splice(removedIndex, 0, removedItem);
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) || "Couldn't remove item - please try again";
+            showToast(msg);
+            renderCart(cartItems);
+        });
 }
 
 function updateSummary() {
@@ -97,9 +132,8 @@ function updateSummary() {
     $("#sum-shipping").text(formatLKR(shipping));
     $("#sum-total").text(formatLKR(subtotal + shipping));
 
-    // Keep the navbar's cart count/total in sync with this page's real state,
-    // rather than the incremental guess other pages use before a real
-    // GET /carts endpoint exists.
+
+    // GET carts endpoint exists.
     const totalQty = cartItems.reduce((sum, i) => sum + i.quantity, 0);
     localStorage.setItem("potha_cart_count", totalQty);
     localStorage.setItem("potha_cart_total", subtotal);
