@@ -38,17 +38,43 @@ $(document).ready(function () {
     $("#qty-plus").on("click", () => setQty(currentQty + 1));
 
     $("#add-to-cart-btn").on("click", function () {
+        // /carts/items requires a logged-in user on the backend. Check client-side
+        // first instead of faking a success toast when the request is really a 401.
+        if (!Auth.isLoggedIn()) {
+            showToast("Please sign in to add items to your cart");
+            window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+        }
         const unitPrice = currentBook ? (currentBook.specialPrice && currentBook.specialPrice < currentBook.price ? currentBook.specialPrice : currentBook.price) : 0;
         api.post("/carts/items", { bookId: bookId, quantity: currentQty })
             .done(() => { showToast(`Added ${currentQty} to cart`); bumpLocalCount("potha_cart_count", currentQty); bumpCartTotal(unitPrice * currentQty); })
-            .fail(() => { showToast(`Added ${currentQty} to cart (demo mode)`); bumpLocalCount("potha_cart_count", currentQty); bumpCartTotal(unitPrice * currentQty); });
+            .fail(xhr => {
+                if (xhr.status === 401 || xhr.status === 403) {
+                    showToast("Your session has expired - please sign in again");
+                    Auth.logout();
+                    return;
+                }
+                showToast("Couldn't add to cart - is the backend running?");
+            });
     });
 
     $("#wishlist-btn").on("click", function () {
+        if (!Auth.isLoggedIn()) {
+            showToast("Please sign in to save items to your wishlist");
+            window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+            return;
+        }
         $(this).toggleClass("btn-primary btn-outline");
         api.post("/wishlists/items", { bookId: bookId })
             .done(() => { showToast("Saved to wishlist"); bumpLocalCount("potha_wishlist_count", 1); })
-            .fail(() => { showToast("Saved to wishlist (demo mode)"); bumpLocalCount("potha_wishlist_count", 1); });
+            .fail(xhr => {
+                if (xhr.status === 401 || xhr.status === 403) {
+                    showToast("Your session has expired - please sign in again");
+                    Auth.logout();
+                    return;
+                }
+                showToast("Couldn't save to wishlist - is the backend running?");
+            });
     });
 
     $("#review-submit").on("click", function () {

@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.bookstore.dto.response.CommonResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,8 +42,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String token = authHeader.substring(7);
+
+
+        if (token.isBlank() || "undefined".equals(token) || "null".equals(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
-            String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -72,7 +78,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void handleJwtException(HttpServletResponse response, int code, String message) throws IOException {
-        response.setStatus(HttpStatus.OK.value());
+
+
+        response.setStatus(code);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         CommonResponse errorResponse = new CommonResponse(code, message);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

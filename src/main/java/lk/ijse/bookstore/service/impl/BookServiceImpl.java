@@ -141,6 +141,7 @@ public class BookServiceImpl implements BookService {
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public List<BookResponseDTO> trending() {
         List<Book> books = bookRepository.findAll();
@@ -151,6 +152,7 @@ public class BookServiceImpl implements BookService {
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
+
 
 
     private void applyRequest(Book book, BookRequestDTO dto){
@@ -192,6 +194,7 @@ public class BookServiceImpl implements BookService {
     }
 
 
+
     private double avgRating(Book book){
         return book.getReviews()
                 .stream()
@@ -211,6 +214,9 @@ public class BookServiceImpl implements BookService {
         List<String> authorNames = book.getAuthors().stream().map(Author::getName).collect(Collectors.toList());
         List<String> categoryNames = book.getCategories().stream().map(Category::getName).collect(Collectors.toList());
         List<String> imageUrls = book.getImages().stream().map(BookImage::getImageUrl).collect(Collectors.toList());
+
+        List<Long> authorIds = book.getAuthors().stream().map(Author::getAuthorId).collect(Collectors.toList());
+        List<Long> categoryIds = book.getCategories().stream().map(Category::getCategoryId).collect(Collectors.toList());
 
 
         double avgRating = avgRating(book);
@@ -232,6 +238,9 @@ public class BookServiceImpl implements BookService {
                 .authors(authorNames)
                 .categories(categoryNames)
                 .images(imageUrls)
+                .publisherId(book.getPublisher() != null ? book.getPublisher().getPublisherId() : null)
+                .categoryIds(categoryIds)
+                .authorIds(authorIds)
                 .rating(Math.round(avgRating * 10.0) / 10.0)
                 .reviewCount(book.getReviews().size())
                 .inStock(qty > 0)

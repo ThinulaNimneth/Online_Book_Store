@@ -58,7 +58,7 @@ public class OrderServiceImpl  implements OrderService {
                     .address(address)
                     .orderStatus(OrderStatus.PENDING)
                     .totalAmount(BigDecimal.ZERO)
-                    .build();
+                    .build();    //remove this builderpattern
 
             order = orderRepository.save(order);
 
@@ -141,7 +141,7 @@ public class OrderServiceImpl  implements OrderService {
     @Override
     public List<OrderResponseDTO> findAll() {
         return orderRepository.findAll()
-                .stream()
+                .stream()  //stream api
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -225,3 +225,5 @@ public class OrderServiceImpl  implements OrderService {
 
 
 }
+
+

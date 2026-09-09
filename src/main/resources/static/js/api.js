@@ -2,8 +2,6 @@
    api.js - shared across every page.
    Central place for the API base URL, JWT storage, a thin $.ajax wrapper
    that attaches the Authorization header, and a small toast helper.
-   TODO (once your backend is running): none of this needs to change -
-   just make sure your endpoints match the paths used in each page's JS.
    ========================================================================== */
 
 const API_BASE = "http://localhost:8080/api/v1";
@@ -45,10 +43,7 @@ const Auth = {
 };
 
 /**
- * Thin wrapper around $.ajax that attaches the JWT and normalizes
- * the CommonResponse envelope { status, body, message } from the backend.
- * TODO: nothing to change here - just call api.get/post/put/del from
- * each page's JS with the right endpoint path.
+ * endpoint
  */
 const api = {
     request(method, path, data) {

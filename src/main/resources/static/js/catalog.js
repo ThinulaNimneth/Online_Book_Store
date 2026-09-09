@@ -184,15 +184,45 @@ function bindBookCardEvents() {
 }
 
 function addToCart(bookId, quantity, unitPrice) {
+    // /carts/items requires a logged-in user on the backend (SecurityConfig ->
+    // .anyRequest().authenticated()). Check client-side first so guests get a
+    // clear "please sign in" prompt instead of a fake "Added to cart" toast
+    // that only ever updated a local counter and never touched a real cart.
+    if (!Auth.isLoggedIn()) {
+        showToast("Please sign in to add items to your cart");
+        window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+    }
+
     api.post("/carts/items", { bookId: bookId, quantity: quantity })
         .done(() => { showToast("Added to cart"); bumpLocalCount("potha_cart_count", quantity); bumpCartTotal(unitPrice * quantity); })
-        .fail(() => { showToast("Added to cart (demo mode - backend not connected yet)"); bumpLocalCount("potha_cart_count", quantity); bumpCartTotal(unitPrice * quantity); });
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            showToast("Couldn't add to cart - is the backend running?");
+        });
 }
 
 function addToWishlist(bookId) {
+    if (!Auth.isLoggedIn()) {
+        showToast("Please sign in to save items to your wishlist");
+        window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
+        return;
+    }
+
     api.post("/wishlists/items", { bookId: bookId })
         .done(() => { showToast("Saved to wishlist"); bumpLocalCount("potha_wishlist_count", 1); })
-        .fail(() => { showToast("Saved to wishlist (demo mode)"); bumpLocalCount("potha_wishlist_count", 1); });
+        .fail(xhr => {
+            if (xhr.status === 401 || xhr.status === 403) {
+                showToast("Your session has expired - please sign in again");
+                Auth.logout();
+                return;
+            }
+            showToast("Couldn't save to wishlist - is the backend running?");
+        });
 }
 
 function escapeHtml(str) {

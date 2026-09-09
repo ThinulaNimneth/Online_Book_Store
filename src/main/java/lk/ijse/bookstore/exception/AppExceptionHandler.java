@@ -16,14 +16,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<lk.ijse.bookstore.dto.response.CommonResponse> handleServerException(Exception ex, WebRequest webRequest) {
+    public ResponseEntity<CommonResponse> handleServerException(Exception ex, WebRequest webRequest) {
         ex.printStackTrace();
-        return ResponseEntity.ok(new lk.ijse.bookstore.dto.response.CommonResponse(ResponseCode.INTERNAL_ERROR, ResponseMessage.UNEXPECTED_ERROR));
+        return ResponseEntity.status(ResponseCode.INTERNAL_ERROR)
+                .body(new CommonResponse(ResponseCode.INTERNAL_ERROR, ResponseMessage.UNEXPECTED_ERROR));
     }
 
     @ExceptionHandler(value = {CustomerException.class})
-    public ResponseEntity<lk.ijse.bookstore.dto.response.CommonResponse> handleCustomException(CustomerException ex, WebRequest webRequest) {
-        return ResponseEntity.ok(new lk.ijse.bookstore.dto.response.CommonResponse(ex.getStatus(), ex.getMessage()));
+    public ResponseEntity<CommonResponse> handleCustomException(CustomerException ex, WebRequest webRequest) {
+
+        return ResponseEntity.status(ex.getStatus())
+                .body(new CommonResponse(ex.getStatus(), ex.getMessage()));
     }
 
     @Override
@@ -34,8 +37,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        lk.ijse.bookstore.dto.response.CommonResponse response = new CommonResponse(ResponseCode.VALIDATION_FAILED,
+        CommonResponse response = new CommonResponse(ResponseCode.VALIDATION_FAILED,
                 message.isEmpty() ? ResponseMessage.VALIDATION_FAILED : message);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(ResponseCode.VALIDATION_FAILED).body(response);
     }
 }

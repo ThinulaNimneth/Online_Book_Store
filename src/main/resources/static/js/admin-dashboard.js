@@ -9,6 +9,13 @@
      Orders       -> /orders/all   (PATCH /orders/{id}/status?status= only - no add/delete)
    ========================================================================== */
 
+// Where each dropdown/multiselect field's options come from.
+const LOOKUP_SOURCES = {
+    publishers: { endpoint: "/publishers", idKey: "publisherId", labelKey: "name" },
+    categories: { endpoint: "/categories", idKey: "categoryId", labelKey: "name" },
+    authors:    { endpoint: "/authors",    idKey: "authorId",    labelKey: "name" },
+};
+
 const PANEL_CONFIG = {
     books: {
         title: "Books", endpoint: "/books", idKey: "id",
@@ -23,9 +30,9 @@ const PANEL_CONFIG = {
             { key: "specialPrice", label: "Special price (optional)", type: "number", step: "0.01" },
             { key: "language", label: "Language", type: "text" },
             { key: "pages", label: "Pages", type: "number" },
-            { key: "publisherId", label: "Publisher ID", type: "number" },
-            { key: "categoryIds", label: "Category IDs (comma-separated)", type: "text", list: true },
-            { key: "authorIds", label: "Author IDs (comma-separated)", type: "text", list: true },
+            { key: "publisherId", label: "Publisher", type: "select", source: "publishers", required: true },
+            { key: "categoryIds", label: "Categories", type: "multiselect", source: "categories", required: true },
+            { key: "authorIds", label: "Authors", type: "multiselect", source: "authors", required: true },
             { key: "quantityAvailable", label: "Initial stock quantity", type: "number" },
         ],
     },
@@ -181,7 +188,7 @@ function renderRows(config, items) {
     });
 }
 
-/* ---------------- Add / Edit modal ---------------- */
+/* ---------------- Add / Edit ---------------- */
 
 function openModal(row) {
     const config = PANEL_CONFIG[currentPanel];
@@ -189,6 +196,7 @@ function openModal(row) {
     $("#admin-modal-error").removeClass("show").text("");
     $("#admin-modal-title").text((isEdit ? "Edit " : "Add ") + config.title.replace(/s$/, ""));
     $("#admin-modal-backdrop").data("editing-row", row || null);
+    $("#admin-modal-backdrop").addClass("open");
 
     const $form = $("#admin-modal-form").empty();
 
@@ -201,46 +209,126 @@ function openModal(row) {
                 <select class="form-control" name="status">${options}</select>
             </div>
         `);
-    } else {
-        config.fields.forEach(f => {
-            let value = "";
-            if (isEdit) {
-                if (f.list && Array.isArray(row[f.key])) value = row[f.key].join(", ");
-                else value = row[f.key] ?? "";
-            }
-            if (f.type === "textarea") {
-                $form.append(`
-                    <div class="form-group">
-                        <label>${f.label}</label>
-                        <textarea class="form-control" name="${f.key}" rows="3">${escapeHtml(String(value))}</textarea>
-                    </div>
-                `);
-            } else {
-                $form.append(`
-                    <div class="form-group">
-                        <label>${f.label}</label>
-                        <input class="form-control" type="${f.type}" name="${f.key}"
-                               ${f.step ? `step="${f.step}"` : ""} ${f.required ? "required" : ""}
-                               value="${escapeHtml(String(value))}">
-                    </div>
-                `);
-            }
-        });
+        return;
     }
 
-    $("#admin-modal-backdrop").addClass("open");
+    // Any fields that pull from a lookup (publisher/category/author) need
+    // their live options fetched from the backend before we can render them.
+    const neededSources = [...new Set(config.fields.filter(f => f.source).map(f => f.source))];
+
+    if (neededSources.length === 0) {
+        renderFormFields(config, row, isEdit, {});
+        return;
+    }
+
+    $form.append(`<p style="color:var(--text-faint)">Loading form...</p>`);
+
+    Promise.all(neededSources.map(src => api.get(LOOKUP_SOURCES[src].endpoint)))
+        .then(results => {
+            const lookups = {};
+            neededSources.forEach((src, i) => { lookups[src] = (results[i] && results[i].body) || []; });
+            renderFormFields(config, row, isEdit, lookups);
+        })
+        .catch(() => {
+            $form.empty();
+            showModalError({ responseJSON: { message: "Couldn't load publishers/categories/authors from the server. Add at least one of each first, then try again." } });
+        });
+}
+
+function renderFormFields(config, row, isEdit, lookups) {
+    const $form = $("#admin-modal-form").empty();
+
+    config.fields.forEach(f => {
+        let value = "";
+        if (isEdit) {
+            if (f.type === "multiselect" && Array.isArray(row[f.key])) value = row[f.key];
+            else value = row[f.key] ?? "";
+        }
+
+        if (f.type === "textarea") {
+            $form.append(`
+                <div class="form-group">
+                    <label>${f.label}</label>
+                    <textarea class="form-control" name="${f.key}" rows="3">${escapeHtml(String(value))}</textarea>
+                </div>
+            `);
+        } else if (f.type === "select") {
+            const src = LOOKUP_SOURCES[f.source];
+            const items = lookups[f.source] || [];
+            const options = [`<option value="">-- Select ${f.label} --</option>`]
+                .concat(items.map(it => {
+                    const id = it[src.idKey];
+                    const selected = isEdit && Number(value) === Number(id) ? "selected" : "";
+                    return `<option value="${id}" ${selected}>${escapeHtml(String(it[src.labelKey]))}</option>`;
+                })).join("");
+            const emptyNote = items.length === 0
+                ? `<div style="color:#e57373;font-size:.85em;margin-top:4px">No ${f.label.toLowerCase()}s found yet — add one in the ${f.label} tab first.</div>`
+                : "";
+            $form.append(`
+                <div class="form-group">
+                    <label>${f.label}</label>
+                    <select class="form-control" name="${f.key}" ${f.required ? "required" : ""}>${options}</select>
+                    ${emptyNote}
+                </div>
+            `);
+        } else if (f.type === "multiselect") {
+            const src = LOOKUP_SOURCES[f.source];
+            const items = lookups[f.source] || [];
+            const selectedIds = (Array.isArray(value) ? value : []).map(Number);
+            const options = items.map(it => {
+                const id = it[src.idKey];
+                const selected = selectedIds.includes(Number(id)) ? "selected" : "";
+                return `<option value="${id}" ${selected}>${escapeHtml(String(it[src.labelKey]))}</option>`;
+            }).join("");
+            const emptyNote = items.length === 0
+                ? `<div style="color:#e57373;font-size:.85em;margin-top:4px">No ${f.label.toLowerCase()} found yet — add some in the ${f.label} tab first.</div>`
+                : "";
+            $form.append(`
+                <div class="form-group">
+                    <label>${f.label}</label>
+                    <select class="form-control" name="${f.key}" multiple size="5" ${f.required ? "required" : ""}>${options}</select>
+                    <div style="color:var(--text-faint);font-size:.8em;margin-top:4px">Hold Ctrl (Cmd on Mac) to pick more than one.</div>
+                    ${emptyNote}
+                </div>
+            `);
+        } else {
+            $form.append(`
+                <div class="form-group">
+                    <label>${f.label}</label>
+                    <input class="form-control" type="${f.type}" name="${f.key}"
+                           ${f.step ? `step="${f.step}"` : ""} ${f.required ? "required" : ""}
+                           value="${escapeHtml(String(value))}">
+                </div>
+            `);
+        }
+    });
 }
 
 function closeModal() {
     $("#admin-modal-backdrop").removeClass("open").removeData("editing-row");
 }
 
+// Like $form.serializeArray(), but repeated field names (from a <select multiple>)
+// are collected into an array instead of overwriting each other.
+function collectFormData($form) {
+    const data = {};
+    $form.serializeArray().forEach(({ name, value }) => {
+        if (data[name] === undefined) {
+            data[name] = value;
+        } else if (Array.isArray(data[name])) {
+            data[name].push(value);
+        } else {
+            data[name] = [data[name], value];
+        }
+    });
+    return data;
+}
+
 function handleModalSubmit(e) {
     e.preventDefault();
     const config = PANEL_CONFIG[currentPanel];
     const row = $("#admin-modal-backdrop").data("editing-row");
-    const formData = {};
-    $("#admin-modal-form").serializeArray().forEach(f => formData[f.name] = f.value);
+    const formData = collectFormData($("#admin-modal-form"));
 
     if (config.statusOnly) {
         api.patch(`/orders/${row.orderId}/status?status=${encodeURIComponent(formData.status)}`)
@@ -252,9 +340,16 @@ function handleModalSubmit(e) {
     const payload = {};
     config.fields.forEach(f => {
         let v = formData[f.key];
+
+        if (f.type === "multiselect") {
+            const arr = v === undefined ? [] : (Array.isArray(v) ? v : [v]);
+            const ids = arr.map(Number).filter(n => !isNaN(n));
+            payload[f.key] = ids.length ? ids : null;
+            return;
+        }
+
         if (v === "" || v === undefined) { payload[f.key] = null; return; }
-        if (f.type === "number") payload[f.key] = Number(v);
-        else if (f.list) payload[f.key] = v.split(",").map(s => Number(s.trim())).filter(n => !isNaN(n));
+        if (f.type === "number" || f.type === "select") payload[f.key] = Number(v);
         else payload[f.key] = v;
     });
 

@@ -19,6 +19,7 @@ function initLayout() {
 
 function bindNavbar() {
     applyAuthState();
+    loadCategoryMenus();
     bindDropdown($("#nav-account-strip-label"), $("#nav-account-strip-menu"));
     bindDropdown($("#strip-categories-label"), $("#strip-categories-menu"));
 
@@ -27,6 +28,34 @@ function bindNavbar() {
         const q = $("#nav-search-input").val().trim();
         window.location.href = "index.html" + (q ? "?q=" + encodeURIComponent(q) : "");
     });
+}
+
+/**
+ * Populates the "All Categories" dropdown (both the one next to the logo and
+ * the one in the second nav strip) from the real GET /categories endpoint,
+ * so a category the admin just added (e.g. "Finance") shows up immediately
+ * instead of only ever showing the 6 hardcoded links that used to be baked
+ * into partials/navbar.html.
+ */
+function loadCategoryMenus() {
+    api.get("/categories")
+        .done(res => renderCategoryMenus(res.body || []))
+        .fail(() => { /* keep the static fallback links already in the HTML if the API call fails */ });
+}
+
+function renderCategoryMenus(categories) {
+    if (!categories.length) return;
+    const linksHtml = categories
+        .map(c => `<a href="index.html?category=${encodeURIComponent(slugifyCategory(c.name))}">${escapeHtmlBasic(c.name)}</a>`)
+        .join("");
+    $("#category-dropdown-menu").html(linksHtml);
+    $("#strip-categories-menu").html(linksHtml);
+}
+
+// Matches the loose slug matching catalog.js already does when filtering by
+// ?category=, e.g. "Children's" <-> "childrens".
+function slugifyCategory(name) {
+    return (name || "").toLowerCase().replace(/[^a-z]/g, "");
 }
 
 /**

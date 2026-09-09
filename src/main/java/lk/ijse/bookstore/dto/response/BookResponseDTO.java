@@ -30,6 +30,11 @@ public class BookResponseDTO {
     private List<String> categories;
     private List<String> images;
 
+
+    private Long publisherId;
+    private List<Long> categoryIds;
+    private List<Long> authorIds;
+
     private double rating;
     private int reviewCount;
     private boolean inStock;
