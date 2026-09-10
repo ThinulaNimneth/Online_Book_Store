@@ -15,6 +15,8 @@ import java.util.List;
 @Builder
 public class BookResponseDTO {
     private Long id;
+
+    private Long wishlistItemId;
     private String title;
     private String isbn;
     private String description;

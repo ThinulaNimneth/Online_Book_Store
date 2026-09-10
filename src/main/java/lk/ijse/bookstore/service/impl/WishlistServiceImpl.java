@@ -92,6 +92,7 @@ public class WishlistServiceImpl implements WishlistService {
 
         return BookResponseDTO.builder()
                 .id(book.getBookId())
+                .wishlistItemId(wi.getWishlistItemId())
                 .title(book.getTitle())
                 .price(book.getPrice())
                 .specialPrice(book.getSpecialPrice())

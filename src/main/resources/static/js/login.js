@@ -18,6 +18,12 @@ $(document).ready(function () {
         showToast("Password reset flow not implemented yet - TODO.");
     });
 
+    // guest as
+    $("#guest-login-btn").on("click", function () {
+        const params = new URLSearchParams(window.location.search);
+        window.location.href = params.get("redirect") || "index.html";
+    });
+
     $("#login-form").on("submit", function (e) {
         e.preventDefault();
         $("#login-error").removeClass("show");
