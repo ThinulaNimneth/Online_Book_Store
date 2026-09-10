@@ -1,11 +1,5 @@
 /* ==========================================================================
    book-details.js
-   Real endpoints:
-     GET  /books/{id}              -> book detail incl. images, publisher, author, stock
-     GET  /reviews?bookId={id}     -> reviews list
-     POST /reviews                 -> { bookId, rating, comment }  (requires login)
-     POST /carts/items             -> { bookId, quantity }
-     POST /wishlists/items         -> { bookId }
    ========================================================================== */
 
 const DEMO_BOOK = {

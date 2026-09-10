@@ -1,7 +1,6 @@
 /* ==========================================================================
    layout.js - loads the shared navbar/footer partials into every page and
    keeps the account block, cart count/total, and category dropdown in sync.
-   Call initLayout() once on $(document).ready() in every page.
    ========================================================================== */
 
 function initLayout() {

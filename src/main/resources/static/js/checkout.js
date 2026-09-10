@@ -1,11 +1,5 @@
 /* ==========================================================================
    checkout.js
-   Real endpoints:
-     GET  /addresses           -> saved addresses for the address-select dropdown
-     POST /addresses           -> save a new address (if "new address" fields used)
-     GET  /carts                -> to render the order summary
-     POST /orders               -> { addressId, paymentMethod } -> creates Order + OrderItems
-     POST /payments              -> { orderId, paymentMethod } -> simulated Payment record
    ========================================================================== */
 
 const SHIPPING_FLAT = 350;

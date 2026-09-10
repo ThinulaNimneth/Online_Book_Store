@@ -1,12 +1,5 @@
 /* ==========================================================================
    login.js
-   Real endpoint: POST /api/v1/auth/login  { email, password }
-                  -> CommonResponse.body = { token, userId, fullName, roles }
-
-   The Facebook/Google buttons and "Forgot Password" link are UI-only
-   placeholders - OAuth login and password reset are out of scope for the
-   coursework's core requirements (JWT email/password auth only). Wire them
-   up later only if you want to chase the AI/extra-development bonus marks.
    ========================================================================== */
 
 $(document).ready(function () {

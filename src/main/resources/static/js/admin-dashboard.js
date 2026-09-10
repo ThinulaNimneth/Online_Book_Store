@@ -1,12 +1,5 @@
 /* ==========================================================================
    admin-dashboard.js
-   Requires an ADMIN JWT. Every panel below is wired to its real endpoint:
-     Books        -> /books        (POST / PUT / DELETE /books/{id})
-     Categories   -> /categories   (POST / PUT / DELETE /categories/{id})
-     Authors      -> /authors      (POST / PUT / DELETE /authors/{id})
-     Publishers   -> /publishers   (POST / PUT / DELETE /publishers/{id})
-     Inventory    -> /inventory    (POST / PUT /inventory - upsert by bookId, no delete)
-     Orders       -> /orders/all   (PATCH /orders/{id}/status?status= only - no add/delete)
    ========================================================================== */
 
 // Where each dropdown/multiselect field's options come from.

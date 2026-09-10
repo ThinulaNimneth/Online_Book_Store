@@ -1,7 +1,5 @@
 /* ==========================================================================
    orders.js
-   Real endpoint: GET /orders -> list of { orderId, orderDate, orderStatus,
-                  totalAmount, items: [{ title, quantity }] } for the logged-in user
    ========================================================================== */
 
 const STATUS_BADGE = {

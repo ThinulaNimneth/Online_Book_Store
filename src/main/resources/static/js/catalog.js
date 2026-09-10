@@ -1,17 +1,4 @@
-/* ==========================================================================
-   catalog.js - homepage / full catalog.
-   Real endpoints:
-     GET /books                    -> full catalog (bottom grid)
-     GET /books/new-arrivals       -> New Arrivals carousel
-     GET /books/bestsellers?range=7d   -> Bestseller (Last 7 Days) carousel
-     GET /books/bestsellers?range=all  -> Bestseller (All Time) carousel  (bonus ranking feature)
-     GET /books/trending            -> Trending grid
 
-   Keyword search is handled entirely by the live dropdown in the top search
-   bar (see bindNavSearch() in layout.js) and category browsing has its own
-   dedicated page (category.html) - so this page no longer reads "q" or
-   "category" from the URL, and never auto-scrolls itself.
-   ========================================================================== */
 
 $(document).ready(function () {
     initLayout();

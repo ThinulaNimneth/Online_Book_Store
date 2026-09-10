@@ -1,9 +1,5 @@
 /* ==========================================================================
    cart.js
-   Real endpoints:
-     GET    /carts                    -> { items: [{cartItemId, book, quantity, unitPrice}], ... }
-     PUT    /carts/items/{cartItemId} -> { quantity }
-     DELETE /carts/items/{cartItemId}
    ========================================================================== */
 
 const SHIPPING_FLAT = 350;

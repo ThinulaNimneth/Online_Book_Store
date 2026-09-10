@@ -3,11 +3,6 @@
    feature: "AI chatbot assistant"). Self-contained: injects its own markup
    + styles, so no HTML file needs editing - just load this script after
    api.js on any page.
-
-   Talks to POST /api/v1/chat (public endpoint, no login required, same as
-   catalog browsing). Conversation history is kept in memory for the
-   current page only - refreshing the page starts a new conversation,
-   which is an intentional simplification for this coursework's scope.
    ========================================================================== */
 
 const Chatbot = {

@@ -1,9 +1,5 @@
 /* ==========================================================================
    wishlist.js
-   Real endpoints:
-     GET    /wishlists              -> { items: [{ wishlistItemId, book }] }
-     DELETE /wishlists/items/{id}
-     POST   /carts/items            -> move to cart
    ========================================================================== */
 
 $(document).ready(function () {

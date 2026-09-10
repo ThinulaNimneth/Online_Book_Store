@@ -1,9 +1,4 @@
-/* ==========================================================================
-   category.js - dedicated "Category" page (category.html?category=Fiction).
-   Clicking a category in the "All Categories" dropdown lands here directly,
-   showing only that category's books - no scrolling, no unrelated sections.
-   Real endpoint: GET /books?category=...
-   ========================================================================== */
+
 
 $(document).ready(function () {
     initLayout();
