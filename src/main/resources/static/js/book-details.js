@@ -32,8 +32,7 @@ $(document).ready(function () {
     $("#qty-plus").on("click", () => setQty(currentQty + 1));
 
     $("#add-to-cart-btn").on("click", function () {
-        // /carts/items requires a logged-in user on the backend. Check client-side
-        // first instead of faking a success toast when the request is really a 401.
+        // /carts/items requires a logged
         if (!Auth.isLoggedIn()) {
             showToast("Please sign in to add items to your cart");
             window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
@@ -91,7 +90,7 @@ function renderBook(book) {
     currentBook = book;
     const hasDiscount = book.specialPrice && book.specialPrice < book.price;
 
-    document.title = book.title + " — Potha";
+    document.title = book.title + " — Readora";
     $("#breadcrumb-category").text(book.category || "");
     $("#breadcrumb-title").text(book.title);
     $("#book-category").text(book.category || "");

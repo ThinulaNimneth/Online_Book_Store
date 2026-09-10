@@ -1,8 +1,5 @@
 /* ==========================================================================
    register.js
-   Real endpoint: POST /api/v1/auth/register { fullName, email, phone, password }
-                  -> CommonResponse.body = { token, userId, fullName, roles }
-                  (auto-login after registration, same as most storefronts)
    ========================================================================== */
 
 $(document).ready(function () {
@@ -29,7 +26,7 @@ $(document).ready(function () {
                 const body = res.body || {};
                 if (body.token) {
                     Auth.setSession(body.token, { userId: body.userId, fullName: body.fullName, roles: body.roles || ["USER"] });
-                    showToast("Account created - welcome to Potha!");
+                    showToast("Account created - welcome to Readora!");
                     window.location.href = "index.html";
                 } else {
                     showToast("Account created - please sign in");

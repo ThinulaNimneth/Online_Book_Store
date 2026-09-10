@@ -417,6 +417,12 @@ textarea:focus-visible, select:focus-visible {
 }
 .book-card:hover { border-color: var(--border); transform: translateY(-2px); }
 
+.book-card > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 .book-cover {
     position: relative;
     aspect-ratio: 3 / 4;

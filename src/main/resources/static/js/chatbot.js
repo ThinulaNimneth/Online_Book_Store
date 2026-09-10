@@ -1,8 +1,5 @@
 /* ==========================================================================
-   chatbot.js - floating AI shopping-assistant widget (coursework 5.4 bonus
-   feature: "AI chatbot assistant"). Self-contained: injects its own markup
-   + styles, so no HTML file needs editing - just load this script after
-   api.js on any page.
+   chatbot.js
    ========================================================================== */
 
 const Chatbot = {
@@ -66,10 +63,10 @@ const Chatbot = {
 
     injectMarkup() {
         $("body").append(`
-            <button id="chatbot-toggle" title="Ask Potha Assistant">&#128172;</button>
+            <button id="chatbot-toggle" title="Ask Readora Assistant">&#128172;</button>
             <div id="chatbot-panel">
                 <div id="chatbot-header">
-                    <div>Potha Assistant<span class="sub">Ask about books, categories, prices</span></div>
+                    <div>Readora Assistant<span class="sub">Ask about books, categories, prices</span></div>
                     <button id="chatbot-close">&times;</button>
                 </div>
                 <div id="chatbot-messages"></div>
@@ -79,7 +76,7 @@ const Chatbot = {
                 </div>
             </div>
         `);
-        this.appendMessage("bot", "Hi! I'm the Potha shopping assistant. Ask me for a book recommendation, or about a category or price range.");
+        this.appendMessage("bot", "Hi! I'm the Readora shopping assistant. Ask me for a book recommendation, or about a category or price range.");
     },
 
     bindEvents() {
@@ -119,7 +116,7 @@ const Chatbot = {
                 this.appendMessage("bot", reply);
                 this.history.push({ role: "user", content: message });
                 this.history.push({ role: "assistant", content: reply });
-                // Keep only the last 10 turns so the request stays small.
+                //
                 if (this.history.length > 20) this.history = this.history.slice(-20);
             })
             .fail((xhr) => {
