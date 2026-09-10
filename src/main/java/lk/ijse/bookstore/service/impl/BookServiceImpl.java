@@ -76,7 +76,17 @@ public class BookServiceImpl implements BookService {
             inventoryRepository.save(inventory);
         }
 
-        return toDto(savedBook);
+        // book img
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+            BookImage primary = savedBook.getImages().stream()
+                    .filter(BookImage::isPrimary)
+                    .findFirst()
+                    .orElseGet(() -> BookImage.builder().book(savedBook).isPrimary(true).build());
+            primary.setImageUrl(dto.getImageUrl());
+            bookImageRepository.save(primary);
+        }
+
+        return toDto(findEntity(id));
     }
 
 

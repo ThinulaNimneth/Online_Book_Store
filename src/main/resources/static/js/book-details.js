@@ -100,7 +100,23 @@ function renderBook(book) {
     $("#book-publisher").text(book.publisher || "Independent");
     $("#book-description").text(book.description || "No description available yet.");
     $("#book-rating").html(`<span class="stars">${starString(book.rating)}</span>&nbsp;(${(book.reviews || []).length || book.reviewCount || 0} reviews)`);
-    $("#gallery-main").text(book.title);
+
+    // img yet
+    const images = Array.isArray(book.images) ? book.images.filter(Boolean) : [];
+    const $galleryMain = $("#gallery-main").empty();
+    const $galleryThumbs = $("#gallery-thumbs").empty();
+    if (images.length) {
+        $galleryMain.html(`<img src="${images[0]}" alt="${escapeHtml(book.title)}" onerror="this.style.display='none'">`);
+        images.forEach((url, i) => {
+            $galleryThumbs.append(`<div data-index="${i}"><img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" onerror="this.closest('div').style.display='none'"></div>`);
+        });
+        $galleryThumbs.on("click", "div", function () {
+            const idx = $(this).data("index");
+            $galleryMain.html(`<img src="${images[idx]}" alt="${escapeHtml(book.title)}">`);
+        });
+    } else {
+        $galleryMain.text(book.title);
+    }
 
     $("#book-price-special").text(formatLKR(hasDiscount ? book.specialPrice : book.price));
     $("#book-price-original").text(hasDiscount ? formatLKR(book.price) : "");

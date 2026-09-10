@@ -2,7 +2,7 @@
    admin-dashboard.js
    ========================================================================== */
 
-// Where each dropdown/multiselect field's options come from.
+// Where each dropdown
 const LOOKUP_SOURCES = {
     publishers: { endpoint: "/publishers", idKey: "publisherId", labelKey: "name" },
     categories: { endpoint: "/categories", idKey: "categoryId", labelKey: "name" },
@@ -19,6 +19,7 @@ const PANEL_CONFIG = {
             { key: "title", label: "Title", type: "text", required: true },
             { key: "isbn", label: "ISBN", type: "text" },
             { key: "description", label: "Description", type: "textarea" },
+            { key: "imageUrl", label: "Cover image URL", type: "text" },
             { key: "price", label: "Price (LKR)", type: "number", step: "0.01", required: true },
             { key: "specialPrice", label: "Special price (optional)", type: "number", step: "0.01" },
             { key: "language", label: "Language", type: "text" },
@@ -98,8 +99,7 @@ $(document).ready(function () {
     initLayout();
     if (!Auth.requireLogin()) return;
 
-    // Admin-only guard: Auth.isAdmin() reads the roles Auth.setSession()
-    // stored from the JWT response at login, so this is safe to check now.
+    // Admin-only guard
     if (!Auth.isAdmin()) {
         showToast("Admins only");
         window.location.href = "index.html";
@@ -235,6 +235,8 @@ function renderFormFields(config, row, isEdit, lookups) {
         let value = "";
         if (isEdit) {
             if (f.type === "multiselect" && Array.isArray(row[f.key])) value = row[f.key];
+                // cover img
+            else if (f.key === "imageUrl") value = (Array.isArray(row.images) && row.images[0]) || "";
             else value = row[f.key] ?? "";
         }
 
@@ -301,7 +303,7 @@ function closeModal() {
     $("#admin-modal-backdrop").removeClass("open").removeData("editing-row");
 }
 
-// Like $form.serializeArray(), but repeated field names (from a <select multiple>)
+//
 // are collected into an array instead of overwriting each other.
 function collectFormData($form) {
     const data = {};

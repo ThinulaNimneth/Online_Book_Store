@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     if (!category) {
         // No category given
-        // showing a blank/broken page.
+        // showing a blank page.
         window.location.href = "index.html";
         return;
     }
@@ -62,7 +62,7 @@ function categoryBookCardHtml(book) {
                 <button class="wishlist-toggle" data-book-id="${book.id}" aria-label="Save to wishlist">
                     <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.35-9.5-8.5C.7 8.1 2.4 4.5 6 4.5c2 0 3.4 1.1 4 2.2.6-1.1 2-2.2 4-2.2 3.6 0 5.3 3.6 3.5 7C19 15.65 12 20 12 20z" stroke="currentColor" stroke-width="1.8"/></svg>
                 </button>
-                ${escapeHtmlCat(book.title)}
+                ${bookCoverContent(book) || escapeHtmlCat(book.title)}
             </div>
             <div class="book-info">
                 <div class="book-category">${escapeHtmlCat(book.category || "")}</div>

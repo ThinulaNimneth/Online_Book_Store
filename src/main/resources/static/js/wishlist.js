@@ -34,7 +34,7 @@ function renderWishlist(items) {
                 <a href="book-details.html?id=${book.id}">
                     <div class="book-cover">
                         ${book.inStock ? "" : '<span class="ribbon stock-out">Out of Stock</span>'}
-                        ${escapeHtml(book.title)}
+                        ${bookCoverContent(book) || escapeHtml(book.title)}
                     </div>
                     <div class="book-info">
                         <div class="book-category">${escapeHtml(book.category || "")}</div>

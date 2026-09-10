@@ -79,3 +79,13 @@ function starString(rating) {
     const r = Math.round(Number(rating) || 0);
     return "&#9733;".repeat(r).concat("&#9734;".repeat(5 - r));
 }
+
+// book cover
+function bookCoverContent(book) {
+    if (book && Array.isArray(book.images) && book.images.length && book.images[0]) {
+        const url = String(book.images[0]).replace(/"/g, "&quot;");
+        const alt = String(book.title || "").replace(/"/g, "&quot;");
+        return `<img src="${url}" alt="${alt}" onerror="this.style.display='none'">`;
+    }
+    return null;
+}
