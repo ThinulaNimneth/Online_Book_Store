@@ -1,7 +1,6 @@
 /* ==========================================================================
-   api.js - shared across every page.
+   api.js - shared every page.
    Central place for the API base URL, JWT storage, a thin $.ajax wrapper
-   that attaches the Authorization header, and a small toast helper.
    ========================================================================== */
 
 const API_BASE = "http://localhost:8080/api/v1";

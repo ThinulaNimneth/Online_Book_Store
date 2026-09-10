@@ -1,83 +1,52 @@
 /* ==========================================================================
-   catalog.js - homepage / full catalog.
-   Real endpoints:
-     GET /books                    -> full catalog (bottom grid)
-     GET /books/new-arrivals       -> New Arrivals carousel
-     GET /books/bestsellers?range=7d   -> Bestseller (Last 7 Days) carousel
-     GET /books/bestsellers?range=all  -> Bestseller (All Time) carousel  (bonus ranking feature)
-     GET /books/trending            -> Trending grid
-
-   Keyword search is handled entirely by the live dropdown in the top search
-   bar (see bindNavSearch() in layout.js) and category browsing has its own
-   dedicated page (category.html) - so this page no longer reads "q" or
-   "category" from the URL, and never auto-scrolls itself.
+   category.js - dedicated "Category" page (category.html?category=Fiction).
+   Clicking a category in the "All Categories" dropdown lands here directly,
+   showing only that category's books - no scrolling, no unrelated sections.
+   Real endpoint: GET /books?category=...
    ========================================================================== */
 
 $(document).ready(function () {
     initLayout();
 
-    loadCarousel("#new-arrivals-row", "#new-arrivals-dots", "/books/new-arrivals");
-    loadCarousel("#bestsellers-7d-row", "#bestsellers-7d-dots", "/books/bestsellers?range=7d");
-    loadCarousel("#bestsellers-all-row", "#bestsellers-all-dots", "/books/bestsellers?range=all");
-    loadTrending();
-    loadCatalog();
+    const params = new URLSearchParams(window.location.search);
+    const category = (params.get("category") || "").trim();
+
+    if (!category) {
+        // No category given
+        // showing a blank/broken page.
+        window.location.href = "index.html";
+        return;
+    }
+
+    $("#catalog-eyebrow").text("Category");
+    $("#catalog-heading").text(category);
+    document.title = category + " Books \u2014 Readora";
+
+    loadCategoryBooks(category);
 });
 
-function loadCarousel(rowSelector, dotsSelector, endpoint) {
-    api.get(endpoint)
-        .done(res => renderCarousel(rowSelector, dotsSelector, res.body || []))
-        .fail(() => renderCarousel(rowSelector, dotsSelector, []));
-}
-
-function loadTrending() {
-    api.get("/books/trending")
-        .done(res => renderBooks("#trending-grid", res.body || []))
-        .fail(() => renderBooks("#trending-grid", []));
-}
-
-function loadCatalog() {
-    api.get("/books")
-        .done(res => renderCatalogResult(res.body || []))
+function loadCategoryBooks(category) {
+    api.get("/books?category=" + encodeURIComponent(category))
+        .done(res => renderCategoryResult(res.body || []))
         .fail(() => {
-            showToast("Couldn't reach the catalog endpoint - is the backend running?");
-            renderCatalogResult([]);
+            showToast("Couldn't reach the category endpoint - is the backend running?");
+            renderCategoryResult([]);
         });
 }
 
-function renderCatalogResult(books) {
-    renderBooks("#catalog-grid", books);
+function renderCategoryResult(books) {
+    renderCategoryBooks("#catalog-grid", books);
     $("#catalog-empty").toggle(books.length === 0);
 }
 
-function renderBooks(gridSelector, books) {
+function renderCategoryBooks(gridSelector, books) {
     const $grid = $(gridSelector);
     $grid.empty();
-    books.forEach(book => $grid.append(bookCardHtml(book)));
-    bindBookCardEvents();
+    books.forEach(book => $grid.append(categoryBookCardHtml(book)));
+    bindCategoryBookCardEvents();
 }
 
-// Ranked horizontal carousel (New Arrivals / Bestseller Last 7 Days / All Time)
-
-function renderCarousel(rowSelector, dotsSelector, books) {
-    const $row = $(rowSelector).empty();
-    books.forEach((book, i) => $row.append(bookCardHtml(book, i + 1)));
-    bindBookCardEvents();
-
-    const $dots = $(dotsSelector).empty();
-    const dotCount = Math.min(books.length, 6);
-    for (let i = 0; i < dotCount; i++) {
-        $dots.append(`<button type="button" class="carousel-dot ${i === 0 ? "active" : ""}" data-index="${i}"></button>`);
-    }
-    $dots.find(".carousel-dot").on("click", function () {
-        const idx = $(this).data("index");
-        const $card = $row.children().eq(idx);
-        if ($card.length) $row.animate({ scrollLeft: $card.position().left + $row.scrollLeft() }, 300);
-        $dots.find(".carousel-dot").removeClass("active");
-        $(this).addClass("active");
-    });
-}
-
-function bookCardHtml(book, rank) {
+function categoryBookCardHtml(book) {
     const hasDiscount = book.specialPrice && book.specialPrice < book.price;
     const ribbon = !book.inStock
         ? '<span class="ribbon stock-out">Out of Stock</span>'
@@ -88,8 +57,7 @@ function bookCardHtml(book, rank) {
         ? `<span class="price-special">${formatLKR(book.specialPrice)}</span><span class="price-original">${formatLKR(book.price)}</span>`
         : `<span class="price-special">${formatLKR(book.price)}</span>`;
 
-    const rankBadge = rank ? `<span class="rank-badge">${rank}</span>` : "";
-    const reviewCount = (!rank && book.reviewCount) ? `<span class="review-count">(${book.reviewCount})</span>` : "";
+    const reviewCount = book.reviewCount ? `<span class="review-count">(${book.reviewCount})</span>` : "";
 
     return `
     <div class="book-card" data-book-id="${book.id}" data-price="${hasDiscount ? book.specialPrice : book.price}">
@@ -99,13 +67,12 @@ function bookCardHtml(book, rank) {
                 <button class="wishlist-toggle" data-book-id="${book.id}" aria-label="Save to wishlist">
                     <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.35-9.5-8.5C.7 8.1 2.4 4.5 6 4.5c2 0 3.4 1.1 4 2.2.6-1.1 2-2.2 4-2.2 3.6 0 5.3 3.6 3.5 7C19 15.65 12 20 12 20z" stroke="currentColor" stroke-width="1.8"/></svg>
                 </button>
-                ${escapeHtml(book.title)}
-                ${rankBadge}
+                ${escapeHtmlCat(book.title)}
             </div>
             <div class="book-info">
-                <div class="book-category">${escapeHtml(book.category || "")}</div>
-                <div class="book-title">${escapeHtml(book.title)}</div>
-                <div class="book-author">by ${escapeHtml(book.author)}</div>
+                <div class="book-category">${escapeHtmlCat(book.category || "")}</div>
+                <div class="book-title">${escapeHtmlCat(book.title)}</div>
+                <div class="book-author">by ${escapeHtmlCat(book.author)}</div>
                 <div class="rating"><span class="stars">${starString(book.rating)}</span>${reviewCount}</div>
                 <div class="price-row">${priceHtml}</div>
             </div>
@@ -118,13 +85,13 @@ function bookCardHtml(book, rank) {
     </div>`;
 }
 
-function bindBookCardEvents() {
+function bindCategoryBookCardEvents() {
     $(".wishlist-toggle").off("click").on("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
         const bookId = $(this).data("book-id");
         $(this).toggleClass("active");
-        addToWishlist(bookId);
+        addToWishlistFromCategory(bookId);
     });
 
     $(".add-to-cart-btn").off("click").on("click", function (e) {
@@ -133,13 +100,11 @@ function bindBookCardEvents() {
         const $card = $(this).closest(".book-card");
         const bookId = $card.data("book-id");
         const price = Number($card.data("price")) || 0;
-        addToCart(bookId, 1, price);
+        addToCartFromCategory(bookId, 1, price);
     });
 }
 
-function addToCart(bookId, quantity, unitPrice) {
-
-
+function addToCartFromCategory(bookId, quantity, unitPrice) {
     if (!Auth.isLoggedIn()) {
         showToast("Please sign in to add items to your cart");
         window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
@@ -158,7 +123,7 @@ function addToCart(bookId, quantity, unitPrice) {
         });
 }
 
-function addToWishlist(bookId) {
+function addToWishlistFromCategory(bookId) {
     if (!Auth.isLoggedIn()) {
         showToast("Please sign in to save items to your wishlist");
         window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search);
@@ -177,6 +142,6 @@ function addToWishlist(bookId) {
         });
 }
 
-function escapeHtml(str) {
+function escapeHtmlCat(str) {
     return $("<div>").text(str || "").html();
 }

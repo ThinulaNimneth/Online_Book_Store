@@ -58,7 +58,7 @@ public class OrderServiceImpl  implements OrderService {
                     .address(address)
                     .orderStatus(OrderStatus.PENDING)
                     .totalAmount(BigDecimal.ZERO)
-                    .build();    //remove this builderpattern
+                    .build();
 
             order = orderRepository.save(order);
 

@@ -125,6 +125,7 @@ textarea:focus-visible, select:focus-visible {
 @media (min-width: 720px) { .brand-sub { display: inline; } }
 
 .nav-search {
+    position: relative;
     flex: 1;
     display: flex;
     align-items: center;
@@ -133,6 +134,79 @@ textarea:focus-visible, select:focus-visible {
     border-radius: var(--radius);
     padding: 0 6px 0 14px;
     max-width: 480px;
+}
+
+/* Live search-as-you-type dropdown */
+.nav-search-results {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    max-height: 420px;
+    overflow-y: auto;
+    z-index: 500;
+}
+.nav-search-results.open { display: block; }
+.nav-search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-soft);
+}
+.nav-search-result-item:last-child { border-bottom: none; }
+.nav-search-result-item:hover,
+.nav-search-result-item.active { background: var(--surface-2); }
+.nav-search-result-item .ns-cover {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    overflow: hidden;
+}
+.nav-search-result-item .ns-cover img { width: 100%; height: 100%; object-fit: cover; }
+.nav-search-result-item .ns-title {
+    flex: 1;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.nav-search-result-item .ns-price {
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-strong);
+    white-space: nowrap;
+}
+.nav-search-loading,
+.nav-search-empty {
+    padding: 18px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+.nav-search-empty strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 4px;
+    font-size: 14px;
 }
 .nav-search input {
     flex: 1;
@@ -730,6 +804,17 @@ textarea:focus-visible, select:focus-visible {
 /* ==========================================================================
    Grantha-style navbar additions (topbar + category dropdown + link strip)
    ========================================================================== */
+
+/* The whole header (topbar + navbar-main + nav-links-strip) is inserted as
+   one block into #navbar-placeholder. Making THAT sticky - instead of only
+   the inner .navbar - is what keeps the phone-number/wishlist topbar and
+   the search/cart row stuck together at the top on scroll, rather than the
+   topbar scrolling away first. */
+#navbar-placeholder {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
 .topbar { background: var(--surface); border-bottom: 1px solid var(--border-soft); font-size: 12.5px; color: var(--text-faint); }
 .topbar-inner { display: flex; justify-content: space-between; align-items: center; padding: 7px 24px; }

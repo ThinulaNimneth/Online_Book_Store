@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category &mdash; Readora</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div class="container">
+
+    <section class="section" id="categories">
+        <div class="section-header">
+            <div>
+                <span class="eyebrow" id="catalog-eyebrow">Category</span>
+                <h2 id="catalog-heading">Books</h2>
+            </div>
+            <a href="index.html">&larr; Back to home</a>
+        </div>
+        <div class="book-grid" id="catalog-grid"></div>
+        <div class="empty-state" id="catalog-empty" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <h3>No books found</h3>
+            <p>There are no books in this category yet.</p>
+            <a href="index.html" class="btn btn-outline btn-sm">Browse all books</a>
+        </div>
+    </section>
+
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/category.js"></script>
+</body>
+</html>

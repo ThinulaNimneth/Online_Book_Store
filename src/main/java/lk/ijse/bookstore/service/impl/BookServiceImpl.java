@@ -102,14 +102,30 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookResponseDTO> search(String keyword, String category){
+        String kw = (keyword == null) ? null : keyword.trim();
+        String cat = (category == null) ? null : category.trim();
+
+        boolean hasKeyword = kw != null && !kw.isEmpty();
+        boolean hasCategory = cat != null && !cat.isEmpty();
+
         List<Book> books;
-        if (keyword != null && !keyword.isBlank()){
-            books = bookRepository.searchByKeyword(keyword);
-        } else if (category != null && !category.isBlank()){
-            books = bookRepository.findByCategoryName(category);
-        }else {
+
+        if (hasKeyword && hasCategory) {
+            books = bookRepository.searchByKeywordAndCategory(kw, cat);
+        } else if (hasKeyword) {
+            books = bookRepository.searchByKeyword(kw);
+        } else if (hasCategory) {
+            books = bookRepository.findByCategoryName(cat);
+            if (books.isEmpty()) {
+                // fallback
+                books = bookRepository.findByCategoryNameContaining(cat);
+            }
+        } else {
             books = bookRepository.findAll();
         }
+
+        log.info("search(keyword='{}', category='{}') -> {} result(s)", kw, cat, books.size());
+
         return books.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

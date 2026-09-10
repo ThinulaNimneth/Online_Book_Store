@@ -213,7 +213,7 @@ function openModal(row) {
     }
 
     // Any fields that pull from a lookup (publisher/category/author) need
-    // their live options fetched from the backend before we can render them.
+    // their live options
     const neededSources = [...new Set(config.fields.filter(f => f.source).map(f => f.source))];
 
     if (neededSources.length === 0) {

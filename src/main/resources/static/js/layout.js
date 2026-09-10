@@ -22,53 +22,179 @@ function bindNavbar() {
     loadCategoryMenus();
     bindDropdown($("#nav-account-strip-label"), $("#nav-account-strip-menu"));
     bindDropdown($("#strip-categories-label"), $("#strip-categories-menu"));
+    bindNavSearch();
+}
 
-    $("#nav-search-form").on("submit", function (e) {
+//dropdown on the top search bar
+function bindNavSearch() {
+    const $form = $("#nav-search-form");
+    const $input = $("#nav-search-input");
+    const $results = $("#nav-search-results");
+    if ($form.length === 0 || $input.length === 0 || $results.length === 0) return;
+
+    let debounceTimer = null;
+    let activeIndex = -1;
+    let requestToken = 0;
+
+    function closeResults() {
+        $results.removeClass("open").empty();
+        activeIndex = -1;
+    }
+
+    function highlight(index) {
+        const $items = $results.find(".nav-search-result-item");
+        $items.removeClass("active");
+        if (index >= 0 && index < $items.length) {
+            $items.eq(index).addClass("active");
+            $items.get(index).scrollIntoView({ block: "nearest" });
+        }
+        activeIndex = index;
+    }
+
+    function goToBook(bookId) {
+        if (!bookId) return;
+        closeResults();
+        $input.val("");
+        window.location.href = "book-details.html?id=" + bookId;
+    }
+
+    function coverHtml(book) {
+        if (book.images && book.images.length) {
+            return `<img src="${book.images[0]}" alt="">`;
+        }
+        const initials = (book.title || "?").trim().slice(0, 2).toUpperCase();
+        return `<span>${escapeHtmlBasic(initials)}</span>`;
+    }
+
+    function renderLoading() {
+        $results.html('<div class="nav-search-loading">Searching&hellip;</div>').addClass("open");
+    }
+
+    function renderEmpty() {
+        $results.html(`
+            <div class="nav-search-empty">
+                <strong>No books found</strong>
+                <span>Try a different search term or browse another category.</span>
+            </div>
+        `).addClass("open");
+    }
+
+    function renderResults(books) {
+        if (!books.length) { renderEmpty(); return; }
+
+        const itemsHtml = books.slice(0, 8).map(book => {
+            const hasDiscount = book.specialPrice && book.specialPrice < book.price;
+            const priceHtml = formatLKR(hasDiscount ? book.specialPrice : book.price);
+            return `
+                <div class="nav-search-result-item" data-book-id="${book.id}">
+                    <div class="ns-cover">${coverHtml(book)}</div>
+                    <div class="ns-title">${escapeHtmlBasic(book.title)}</div>
+                    <div class="ns-price">${priceHtml}</div>
+                </div>
+            `;
+        }).join("");
+
+        $results.html(itemsHtml).addClass("open");
+        activeIndex = -1;
+    }
+
+    function runSearch(query) {
+        const myToken = ++requestToken;
+        renderLoading();
+        api.get("/books?keyword=" + encodeURIComponent(query))
+            .done(res => {
+                if (myToken !== requestToken) return; // a newer keystroke/search superseded this one
+                renderResults(res.body || []);
+            })
+            .fail(() => {
+                if (myToken !== requestToken) return;
+                renderEmpty();
+            });
+    }
+
+    $input.on("input", function () {
+        const q = $(this).val().trim();
+        clearTimeout(debounceTimer);
+
+        if (q.length < 2) {
+            requestToken++;
+            closeResults();
+            return;
+        }
+
+        debounceTimer = setTimeout(() => runSearch(q), 300);
+    });
+
+    $input.on("focus", function () {
+        const q = $(this).val().trim();
+        if (q.length >= 2 && $results.find(".nav-search-result-item, .nav-search-empty").length) {
+            $results.addClass("open");
+        }
+    });
+
+    $input.on("keydown", function (e) {
+        const $items = $results.find(".nav-search-result-item");
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if ($items.length) highlight(Math.min(activeIndex + 1, $items.length - 1));
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if ($items.length) highlight(Math.max(activeIndex - 1, 0));
+        } else if (e.key === "Escape") {
+            closeResults();
+        }
+    });
+
+    $results.on("click", ".nav-search-result-item", function () {
+        goToBook($(this).data("book-id"));
+    });
+
+    $form.on("submit", function (e) {
         e.preventDefault();
-        const q = $("#nav-search-input").val().trim();
-        window.location.href = "index.html" + (q ? "?q=" + encodeURIComponent(q) : "");
+        const q = $input.val().trim();
+        if (!q) { closeResults(); return; }
+
+        const $items = $results.find(".nav-search-result-item");
+
+        // If the user arrow-keyed to a result, Enter opens that book.
+        if (activeIndex >= 0 && $items.eq(activeIndex).length) {
+            goToBook($items.eq(activeIndex).data("book-id"));
+            return;
+        }
+
+        //
+        clearTimeout(debounceTimer);
+        if (q.length >= 2) runSearch(q);
+    });
+
+    $(document).on("click.navSearchClose", function (e) {
+        if (!$(e.target).closest("#nav-search-form").length) closeResults();
     });
 }
 
-/**
- * Populates the "All Categories" dropdown (both the one next to the logo and
- * the one in the second nav strip) from the real GET /categories endpoint,
- * so a category the admin just added (e.g. "Finance") shows up immediately
- * instead of only ever showing the 6 hardcoded links that used to be baked
- * into partials/navbar.html.
- */
+
 function loadCategoryMenus() {
     api.get("/categories")
         .done(res => renderCategoryMenus(res.body || []))
-        .fail(() => { /* keep the static fallback links already in the HTML if the API call fails */ });
+        .fail(() => { /*API call fails */ });
 }
 
 function renderCategoryMenus(categories) {
     if (!categories.length) return;
+
+
+
     const linksHtml = categories
-        .map(c => `<a href="index.html?category=${encodeURIComponent(slugifyCategory(c.name))}">${escapeHtmlBasic(c.name)}</a>`)
+        .map(c => `<a href="category.html?category=${encodeURIComponent((c.name || "").trim())}">${escapeHtmlBasic(c.name)}</a>`)
         .join("");
     $("#category-dropdown-menu").html(linksHtml);
     $("#strip-categories-menu").html(linksHtml);
 }
 
-// Matches the loose slug matching catalog.js already does when filtering by
-// ?category=, e.g. "Children's" <-> "childrens".
-function slugifyCategory(name) {
-    return (name || "").toLowerCase().replace(/[^a-z]/g, "");
-}
 
-/**
- * Generic click-toggle dropdown: trigger opens/closes menu, menu is
- * JS-positioned (position:fixed in CSS) directly under the trigger so it
- * escapes any ancestor's overflow clipping, and closes on an outside
- * click, Escape, resize, or scroll. Used for both the "Account ▾" item in
- * the second nav strip and the main "Hi, {name} ▾" trigger next to the
- * account icon - previously the account icon just showed two stacked,
- * easily-mis-clicked links ("Hi, Name" / "Sign out") with no visible way
- * to reach the admin dashboard; this replaces that with one clear trigger
- * and a real menu.
- */
+
+
 function bindDropdown($trigger, $menu) {
     if ($trigger.length === 0 || $menu.length === 0) return;
 
@@ -121,8 +247,7 @@ function applyAuthState() {
             <a href="#" class="nav-logout-link">Sign out</a>
         `;
 
-        // Single clear trigger - "Hi, Name ▾" - instead of two stacked,
-        // easily-confused links. Clicking opens a real dropdown menu.
+        // Clicking opens a real dropdown menu.
         $links.html(`
             <span id="nav-account-trigger">Hi, ${escapeHtmlBasic(firstName)} <span class="chevron">&#9662;</span></span>
         `);
@@ -142,9 +267,7 @@ function applyAuthState() {
 }
 
 function refreshNavCounts() {
-    // TODO: once GET /carts is implemented, replace this with a real
-    // api.get("/carts") call and sum quantity * unitPrice server-side.
-    // For now this reads a small local cache so the nav feels alive
+
     // even before the backend endpoints exist.
     const cartCount = Number(localStorage.getItem("potha_cart_count") || 0);
     const cartTotal = Number(localStorage.getItem("potha_cart_total") || 0);

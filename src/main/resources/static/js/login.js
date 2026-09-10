@@ -40,7 +40,7 @@ $(document).ready(function () {
                 Auth.setSession(body.token, {
                     userId: body.userId, fullName: body.fullName, roles: body.roles || ["USER"]
                 });
-                // "Remember Me" unchecked -> TODO: use sessionStorage instead of
+                // "Remember Me"
                 // localStorage in Auth.setSession so the token clears on tab close.
                 if (!rememberMe) {
                     console.log("Remember Me unchecked - session persistence TODO");

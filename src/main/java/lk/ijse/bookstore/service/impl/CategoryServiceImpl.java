@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.nio.file.Files.find;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +24,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO save(CategoryRequestDTO dto){
-        Category category = Category.builder().name(dto.getName()).description(dto.getDescription()).build();
+
+
+        Category category = Category.builder().name(dto.getName().trim()).description(dto.getDescription()).build();
         category = categoryRepository.save(category);
         log.info("Category created: {}", category.getName());
         return toDto(category);
@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponseDTO update(Long id, CategoryRequestDTO dto){
         Category category = find(id);
-        category.setName(dto.getName());
+        category.setName(dto.getName().trim());
         category.setDescription(dto.getDescription());
         return toDto(categoryRepository.save(category));
     }
@@ -73,6 +73,3 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 }
-
-
-

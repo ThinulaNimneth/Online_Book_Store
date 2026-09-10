@@ -19,7 +19,7 @@ public class BookRequestDTO {
     private String isbn;
     private String description;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "price need greater than 0")
+    @DecimalMin(value = "0.0", inclusive = false, message = "price need big than 0")
     private BigDecimal price;
 
     private BigDecimal specialPrice;
